@@ -72,7 +72,7 @@ func (b *Bot) handleCommandStart(message *tgbotapi.Message) error {
 }
 
 func (b *Bot) handleUnknownCommand(message *tgbotapi.Message) error {
-	msg := tgbotapi.NewMessage(message.Chat.ID, "I don't know such a command!")
+	msg := tgbotapi.NewMessage(message.Chat.ID, "I don't know such a command! "+message.Chat.UserName)
 
 	_, err := b.bot.Send(msg)
 	if err != nil {
@@ -131,7 +131,6 @@ func (b *Bot) handleCommandConsult(message *tgbotapi.Message) error {
 
 func (b *Bot) handleCommandQ(message *tgbotapi.Message) error {
 	msg := tgbotapi.NewMessage(message.Chat.ID, "*consultant disconnected*")
-
 	switcher = 0
 
 	_, err := b.bot.Send(msg)
