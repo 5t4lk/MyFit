@@ -13,6 +13,7 @@ const (
 	commandTrainings  = "trainings"
 	commandConsult    = "consult"
 	commandQ          = "q"
+	commandProfile    = "profile"
 )
 
 func (b *Bot) handleCommand(message *tgbotapi.Message) error {
@@ -27,6 +28,8 @@ func (b *Bot) handleCommand(message *tgbotapi.Message) error {
 		return b.handleCommandConsult(message)
 	case commandQ:
 		return b.handleCommandQ(message)
+	case commandProfile:
+		return b.handleCommandProfile(message)
 	default:
 		return b.handleUnknownCommand(message)
 	}
@@ -61,9 +64,14 @@ func (b *Bot) handleMessage(message *tgbotapi.Message) error {
 }
 
 func (b *Bot) handleCommandStart(message *tgbotapi.Message) error {
-	msg := tgbotapi.NewMessage(message.Chat.ID, displayStart())
+	msg := tgbotapi.NewMessage(message.Chat.ID, displayStart(message))
 
-	_, err := b.bot.Send(msg)
+	err := InitDatabase(message)
+	if err != nil {
+		return err
+	}
+
+	_, err = b.bot.Send(msg)
 	if err != nil {
 		return err
 	}
@@ -72,7 +80,7 @@ func (b *Bot) handleCommandStart(message *tgbotapi.Message) error {
 }
 
 func (b *Bot) handleUnknownCommand(message *tgbotapi.Message) error {
-	msg := tgbotapi.NewMessage(message.Chat.ID, "I don't know such a command! "+message.Chat.UserName)
+	msg := tgbotapi.NewMessage(message.Chat.ID, "I don't know such a command!")
 
 	_, err := b.bot.Send(msg)
 	if err != nil {
@@ -134,6 +142,22 @@ func (b *Bot) handleCommandQ(message *tgbotapi.Message) error {
 	switcher = 0
 
 	_, err := b.bot.Send(msg)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (b *Bot) handleCommandProfile(message *tgbotapi.Message) error {
+	res, err := RequestUserInfo(message)
+	if err != nil {
+		return err
+	}
+
+	msg := tgbotapi.NewMessage(message.Chat.ID, res)
+
+	_, err = b.bot.Send(msg)
 	if err != nil {
 		return err
 	}

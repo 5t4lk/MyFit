@@ -1,4 +1,4 @@
-package mongodb
+package database
 
 import (
 	"context"
@@ -43,4 +43,13 @@ func Ping(client *mongo.Client, ctx context.Context) error {
 	}
 	log.Print("connected successfully")
 	return nil
+}
+
+func Close(client *mongo.Client, ctx context.Context, cancel context.CancelFunc) {
+	defer cancel()
+	defer func() {
+		if err := client.Disconnect(ctx); err != nil {
+			panic(err)
+		}
+	}()
 }
