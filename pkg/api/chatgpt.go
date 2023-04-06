@@ -11,6 +11,7 @@ import (
 
 func AnswerGPT(message *tgbotapi.Message) (string, error) {
 	url := "https://chatgpt-ai-chat-bot.p.rapidapi.com/ask"
+
 	userReq := fmt.Sprintf("{\n    \"query\": \"" + message.Text + "\"\n}")
 	payload := strings.NewReader(userReq)
 

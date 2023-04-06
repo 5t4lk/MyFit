@@ -5,7 +5,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-var switcher int
+var commandSwitcher int
 
 const (
 	commandStart      = "start"
@@ -14,6 +14,10 @@ const (
 	commandConsult    = "consult"
 	commandQ          = "q"
 	commandProfile    = "profile"
+	commandName       = "name"
+	commandAge        = "age"
+	commandWeight     = "weight"
+	commandHeight     = "height"
 )
 
 func (b *Bot) handleCommand(message *tgbotapi.Message) error {
@@ -30,6 +34,14 @@ func (b *Bot) handleCommand(message *tgbotapi.Message) error {
 		return b.handleCommandQ(message)
 	case commandProfile:
 		return b.handleCommandProfile(message)
+	case commandName:
+		return b.handleCommandName(message)
+	case commandAge:
+		return b.handleCommandAge(message)
+	case commandWeight:
+		return b.handleCommandWeight(message)
+	case commandHeight:
+		return b.handleCommandHeight(message)
 	default:
 		return b.handleUnknownCommand(message)
 	}
@@ -38,24 +50,125 @@ func (b *Bot) handleCommand(message *tgbotapi.Message) error {
 }
 
 func (b *Bot) handleMessage(message *tgbotapi.Message) error {
-	if switcher == 0 {
-		msg := tgbotapi.NewMessage(message.Chat.ID, "I couldn't catch your message")
-		_, err := b.bot.Send(msg)
+	switch commandSwitcher {
+	case 1:
+		msgGPT, err := api.AnswerGPT(message)
 		if err != nil {
 			return err
 		}
 
-		return nil
+		msg := tgbotapi.NewMessage(message.Chat.ID, msgGPT)
+
+		_, err = b.bot.Send(msg)
+		if err != nil {
+			return err
+		}
+	case 2:
+		err := changeName(message)
+		if err != nil {
+			return err
+		}
+
+		commandSwitcher = 0
+
+		msg := tgbotapi.NewMessage(message.Chat.ID, displayNameUserTwo())
+
+		_, err = b.bot.Send(msg)
+		if err != nil {
+			return err
+		}
+	case 3:
+		err := changeAge(message)
+		if err != nil {
+			return err
+		}
+
+		commandSwitcher = 0
+
+		msg := tgbotapi.NewMessage(message.Chat.ID, displayAgeUserTwo())
+
+		_, err = b.bot.Send(msg)
+		if err != nil {
+			return err
+		}
+	case 4:
+		err := changeWeight(message)
+		if err != nil {
+			return err
+		}
+
+		commandSwitcher = 0
+
+		msg := tgbotapi.NewMessage(message.Chat.ID, displayWeightUserTwo())
+
+		_, err = b.bot.Send(msg)
+		if err != nil {
+			return err
+		}
+	case 5:
+		err := changeHeight(message)
+		if err != nil {
+			return err
+		}
+
+		commandSwitcher = 0
+
+		msg := tgbotapi.NewMessage(message.Chat.ID, displayHeightUserTwo())
+
+		_, err = b.bot.Send(msg)
+		if err != nil {
+			return err
+		}
 	}
 
-	msgGPT, err := api.AnswerGPT(message)
+	return nil
+}
+
+func (b *Bot) handleCommandName(message *tgbotapi.Message) error {
+	commandSwitcher = 2
+
+	msg := tgbotapi.NewMessage(message.Chat.ID, displayNameUser())
+
+	_, err := b.bot.Send(msg)
 	if err != nil {
 		return err
 	}
 
-	msg := tgbotapi.NewMessage(message.Chat.ID, msgGPT)
+	return nil
+}
 
-	_, err = b.bot.Send(msg)
+func (b *Bot) handleCommandAge(message *tgbotapi.Message) error {
+	commandSwitcher = 3
+
+	msg := tgbotapi.NewMessage(message.Chat.ID, displayAgeUser())
+
+	_, err := b.bot.Send(msg)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (b *Bot) handleCommandWeight(message *tgbotapi.Message) error {
+	commandSwitcher = 4
+
+	msg := tgbotapi.NewMessage(message.Chat.ID, displayWeightUser())
+
+	_, err := b.bot.Send(msg)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (b *Bot) handleCommandHeight(message *tgbotapi.Message) error {
+	commandSwitcher = 5
+
+	msg := tgbotapi.NewMessage(message.Chat.ID, displayHeightUser())
+
+	_, err := b.bot.Send(msg)
 	if err != nil {
 		return err
 	}
@@ -79,8 +192,10 @@ func (b *Bot) handleCommandStart(message *tgbotapi.Message) error {
 	return nil
 }
 
-func (b *Bot) handleUnknownCommand(message *tgbotapi.Message) error {
-	msg := tgbotapi.NewMessage(message.Chat.ID, "I don't know such a command!")
+func (b *Bot) handleCommandConsult(message *tgbotapi.Message) error {
+	msg := tgbotapi.NewMessage(message.Chat.ID, "\xE2\x9C\x8BHi! How can i help you? *сonsultant connected* ")
+
+	commandSwitcher = 1
 
 	_, err := b.bot.Send(msg)
 	if err != nil {
@@ -124,22 +239,9 @@ func (b *Bot) handleTrainingsCommand(message *tgbotapi.Message) error {
 	return nil
 }
 
-func (b *Bot) handleCommandConsult(message *tgbotapi.Message) error {
-	msg := tgbotapi.NewMessage(message.Chat.ID, "Hi! How can i help you? *сonsultant connected* ")
-
-	switcher = 1
-
-	_, err := b.bot.Send(msg)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (b *Bot) handleCommandQ(message *tgbotapi.Message) error {
 	msg := tgbotapi.NewMessage(message.Chat.ID, "*consultant disconnected*")
-	switcher = 0
+	commandSwitcher = 0
 
 	_, err := b.bot.Send(msg)
 	if err != nil {
@@ -158,6 +260,17 @@ func (b *Bot) handleCommandProfile(message *tgbotapi.Message) error {
 	msg := tgbotapi.NewMessage(message.Chat.ID, res)
 
 	_, err = b.bot.Send(msg)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (b *Bot) handleUnknownCommand(message *tgbotapi.Message) error {
+	msg := tgbotapi.NewMessage(message.Chat.ID, "I don't know such a command!")
+
+	_, err := b.bot.Send(msg)
 	if err != nil {
 		return err
 	}

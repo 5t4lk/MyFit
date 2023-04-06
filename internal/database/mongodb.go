@@ -53,3 +53,10 @@ func Close(client *mongo.Client, ctx context.Context, cancel context.CancelFunc)
 		}
 	}()
 }
+
+func UpdateOne(client *mongo.Client, ctx context.Context, dataBase, col string, filter, update interface{}) (result *mongo.UpdateResult, err error) {
+	collection := client.Database(dataBase).Collection(col)
+	result, err = collection.UpdateOne(ctx, filter, update)
+
+	return
+}

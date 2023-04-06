@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"MyFit/internal/database"
+	"context"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"go.mongodb.org/mongo-driver/bson"
@@ -10,12 +11,12 @@ import (
 )
 
 type User struct {
-	username         string  `json:"username" bson:"username"`
-	balance          float64 `json:"balance" bson:"balance"`
-	firstAndLastName string  `json:"firstAndLastName" bson:"firstAndLastName"`
-	age              int     `json:"age" bson:"age"`
-	weight           string  `json:"weight" bson:"weight"`
-	height           string  `json:"height" bson:"height"`
+	Username string  `json:"username" bson:"username"`
+	Balance  float64 `json:"balance" bson:"balance"`
+	Name     string  `json:"name" bson:"name"`
+	Age      string  `json:"age" bson:"age"`
+	Weight   string  `json:"weight" bson:"weight"`
+	Height   string  `json:"height" bson:"height"`
 }
 
 func InitDatabase(message *tgbotapi.Message) error {
@@ -52,21 +53,19 @@ func InitDatabase(message *tgbotapi.Message) error {
 		var doc interface{}
 
 		user := User{
-			username:         message.Chat.UserName,
-			balance:          0.00,
-			firstAndLastName: "",
-			age:              0,
-			weight:           "",
-			height:           "",
+			Username: message.Chat.UserName,
+			Name:     "",
+			Age:      "",
+			Weight:   "",
+			Height:   "",
 		}
 
 		doc = bson.D{
-			{"Username", user.username},
-			{"Balance", user.balance},
-			{"First and last name", user.firstAndLastName},
-			{"Age", user.age},
-			{"Weight", user.weight},
-			{"Height", user.height},
+			{"Username", user.Username},
+			{"Name", user.Name},
+			{"Age", user.Age},
+			{"Weight", user.Weight},
+			{"Height", user.Height},
 		}
 
 		_, err := database.InsertOne(client, ctx, "Users", "data", doc)
@@ -74,7 +73,7 @@ func InitDatabase(message *tgbotapi.Message) error {
 			return err
 		}
 
-		log.Printf("User signed: %s", user.username)
+		log.Printf("User signed: %s", user.Username)
 	}
 
 	return nil
@@ -91,63 +90,46 @@ func RequestUserInfo(message *tgbotapi.Message) (string, error) {
 		return "", err
 	}
 
-	var filter, option interface{}
+	col := client.Database("Users").Collection("data")
 
-	filter = bson.D{
-		{"Username", message.Chat.UserName},
-	}
+	var result User
 
-	cursor, err := database.Query(client, ctx, "Users", "data", filter, option)
+	err = col.FindOne(context.TODO(), bson.M{"Username": message.Chat.UserName}).Decode(&result)
 	if err != nil {
 		return "", err
 	}
+	msgF := fmt.Sprintf(`
+	%sYour profile @%s:
 
-	var results []bson.D
+	[- Username: %s
+	[- Name: %s
+	[- Age: %s
+	[- Weight: %s
+	[- Height: %s
 
-	if err := cursor.All(ctx, &results); err != nil {
-		return "", err
-	}
+	%sTo make changes in your profile write one of these commands below:
+	/name - change your first and last names
+	/age - change your age
+	/weight - change your weight
+	/height - change your height
+`, "\xF0\x9F\x91\xA4", result.Username, result.Username, result.Name, result.Age, result.Weight, result.Height, "\xF0\x9F\x9A\xA8")
 
-	err = MarshalBSON(results)
-	if err != nil {
-		return "", err
-	}
-
-	var user User
-
-	user = User{
-		username:         user.username,
-		balance:          user.balance,
-		firstAndLastName: user.firstAndLastName,
-		age:              user.age,
-		weight:           user.weight,
-		height:           user.height,
-	}
-	msg := fmt.Sprintf(`
-	Username: %s,
-	Balance: %.2f,
-	First and last name: %s,
-	Age: %d,
-	Weight: %s,
-	Height: %s
-`, user.username, user.balance, user.firstAndLastName, user.age, user.weight, user.height)
-
-	return msg, nil
+	return msgF, err
 }
 
 func displayStart(message *tgbotapi.Message) string {
 	msg := fmt.Sprintf(`
-	Hello, %s!
+	Hello, %s! %s
 
-	You can control me by sending these commands:
+	%s You can control me by sending commands below:
 
 	/start - start a bot
-	/profile - check my profile
+	/profile - check your profile
 	/membership - view membership prices
 	/trainings - see training plans and prices
 	/consult - talk with consultant
 	/q - finish chat with consultant
-`, message.Chat.FirstName)
+`, message.Chat.FirstName, "\xE2\x9C\x8B", "\xE2\x84\xB9")
 
 	return msg
 }
@@ -196,11 +178,66 @@ func displayTrainingsText() string {
 	return message
 }
 
-func MarshalBSON(bsonData []bson.D) error {
-	_, err := bson.Marshal(bsonData)
-	if err != nil {
-		return err
-	}
+func displayNameUser() string {
+	msg := fmt.Sprintf(`
+	Write your new name %s
+`, "\xE2\x9C\x92")
 
-	return err
+	return msg
+}
+
+func displayNameUserTwo() string {
+	msg := fmt.Sprintf(`
+	Name was successfully updated %s
+`, "\xE2\x9C\x85")
+
+	return msg
+}
+
+func displayAgeUser() string {
+	msg := fmt.Sprintf(`
+	Write your new age %s
+`, "\xE2\x9C\x92")
+
+	return msg
+}
+
+func displayAgeUserTwo() string {
+	msg := fmt.Sprintf(`
+	Age was successfully updated %s
+`, "\xE2\x9C\x85")
+
+	return msg
+}
+
+func displayWeightUser() string {
+	msg := fmt.Sprintf(`
+	Write your new weight %s
+`, "\xE2\x9C\x92")
+
+	return msg
+}
+
+func displayWeightUserTwo() string {
+	msg := fmt.Sprintf(`
+	Weight was successfully updated %s
+`, "\xE2\x9C\x85")
+
+	return msg
+}
+
+func displayHeightUser() string {
+	msg := fmt.Sprintf(`
+	Write your new height %s
+`, "\xE2\x9C\x92")
+
+	return msg
+}
+
+func displayHeightUserTwo() string {
+	msg := fmt.Sprintf(`
+	Height was successfully updated %s
+`, "\xE2\x9C\x85")
+
+	return msg
 }
