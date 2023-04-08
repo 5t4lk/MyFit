@@ -1,16 +1,18 @@
 package telegram
 
 import (
+	"MyFit/pkg/config"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
 )
 
 type Bot struct {
-	bot *tgbotapi.BotAPI
+	bot      *tgbotapi.BotAPI
+	messages config.Messages
 }
 
-func NewBot(bot *tgbotapi.BotAPI) *Bot {
-	return &Bot{bot: bot}
+func NewBot(bot *tgbotapi.BotAPI, messages config.Messages) *Bot {
+	return &Bot{bot: bot, messages: messages}
 }
 
 func (b *Bot) Start() error {
@@ -20,7 +22,6 @@ func (b *Bot) Start() error {
 	if err != nil {
 		return err
 	}
-
 	b.handleUpdates(updates)
 
 	return nil
@@ -28,14 +29,18 @@ func (b *Bot) Start() error {
 
 func (b *Bot) handleUpdates(updates tgbotapi.UpdatesChannel) {
 	for update := range updates {
-		if update.Message == nil {
+		switch {
+		case update.Message == nil:
 			continue
+		case update.Message.IsCommand():
+			if err := b.handleCommand(update.Message); err != nil {
+				log.Printf("error: %s", err)
+			}
+		default:
+			if err := b.handleMessage(update.Message); err != nil {
+				log.Printf("error: %s", err)
+			}
 		}
-		if update.Message.IsCommand() {
-			b.handleCommand(update.Message)
-			continue
-		}
-		b.handleMessage(update.Message)
 	}
 }
 

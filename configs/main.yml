@@ -1,0 +1,7 @@
+bot_url: "https://t.me/MyFitns_bot"
+
+messages:
+  responses:
+    unknown_message: "I couldn't catch your message!"
+    disconnect_consult: "*consultant disconnected*"
+    unknown_command: "I don't know such a command!"

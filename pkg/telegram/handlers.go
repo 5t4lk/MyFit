@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"MyFit/pkg/api"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
@@ -119,6 +120,15 @@ func (b *Bot) handleMessage(message *tgbotapi.Message) error {
 		if err != nil {
 			return err
 		}
+	default:
+		msg := tgbotapi.NewMessage(message.Chat.ID, b.messages.UnknownMessage)
+
+		_, err := b.bot.Send(msg)
+		if err != nil {
+			return err
+		}
+
+		return nil
 	}
 
 	return nil
@@ -240,7 +250,7 @@ func (b *Bot) handleTrainingsCommand(message *tgbotapi.Message) error {
 }
 
 func (b *Bot) handleCommandQ(message *tgbotapi.Message) error {
-	msg := tgbotapi.NewMessage(message.Chat.ID, "*consultant disconnected*")
+	msg := tgbotapi.NewMessage(message.Chat.ID, b.messages.DisconnectConsult)
 	commandSwitcher = 0
 
 	_, err := b.bot.Send(msg)
@@ -268,7 +278,7 @@ func (b *Bot) handleCommandProfile(message *tgbotapi.Message) error {
 }
 
 func (b *Bot) handleUnknownCommand(message *tgbotapi.Message) error {
-	msg := tgbotapi.NewMessage(message.Chat.ID, "I don't know such a command!")
+	msg := tgbotapi.NewMessage(message.Chat.ID, b.messages.UnknownCommand)
 
 	_, err := b.bot.Send(msg)
 	if err != nil {

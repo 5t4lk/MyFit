@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"MyFit/internal/database"
+	"MyFit/pkg/params"
 	"context"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -20,7 +21,7 @@ type User struct {
 }
 
 func InitDatabase(message *tgbotapi.Message) error {
-	client, ctx, cancel, err := database.Connect("mongodb://localhost:27017")
+	client, ctx, cancel, err := database.Connect(params.ConnectMongoDB)
 	if err != nil {
 		return err
 	}
@@ -80,24 +81,22 @@ func InitDatabase(message *tgbotapi.Message) error {
 }
 
 func RequestUserInfo(message *tgbotapi.Message) (string, error) {
-	client, ctx, _, err := database.Connect("mongodb://localhost:27017")
+	client, ctx, _, err := database.Connect(params.ConnectMongoDB)
 	if err != nil {
 		return "", err
 	}
 
-	err = database.Ping(client, ctx)
-	if err != nil {
+	if err = database.Ping(client, ctx); err != nil {
 		return "", err
 	}
 
 	col := client.Database("Users").Collection("data")
 
 	var result User
-
-	err = col.FindOne(context.TODO(), bson.M{"Username": message.Chat.UserName}).Decode(&result)
-	if err != nil {
+	if err = col.FindOne(context.TODO(), bson.M{"Username": message.Chat.UserName}).Decode(&result); err != nil {
 		return "", err
 	}
+
 	msgF := fmt.Sprintf(`
 	%sYour profile @%s:
 
@@ -135,7 +134,7 @@ func displayStart(message *tgbotapi.Message) string {
 }
 
 func displayMembershipPic() tgbotapi.FileBytes {
-	photoBytes, err := ioutil.ReadFile("/Users/5t4lk/GolandProjects/MyFit/pics/membership.png")
+	photoBytes, err := ioutil.ReadFile("./pics/membership.png")
 	if err != nil {
 		log.Printf("picture not found/impossible to read file: %s", err)
 	}
@@ -149,15 +148,15 @@ func displayMembershipPic() tgbotapi.FileBytes {
 }
 
 func displayMembershipText() string {
-	message := `
-	To buy membership, you need to...
-`
+	message := fmt.Sprintf(`
+	%s To buy a membership in our club, you need to contact a manager at one of the clubs that is most convenient for you.
+`, "\xF0\x9F\x9A\x80")
 
 	return message
 }
 
 func displayTrainingsPic() tgbotapi.FileBytes {
-	photoBytes, err := ioutil.ReadFile("/Users/5t4lk/GolandProjects/MyFit/pics/training.png")
+	photoBytes, err := ioutil.ReadFile("./pics/training.png")
 	if err != nil {
 		log.Printf("picture not found/impossible to read file: %s", err)
 	}
@@ -171,9 +170,9 @@ func displayTrainingsPic() tgbotapi.FileBytes {
 }
 
 func displayTrainingsText() string {
-	message := `
-	To buy training plan, you need to...
-`
+	message := fmt.Sprintf(`
+	%s To buy a training plan in our club, you need to contact a manager at one of the clubs that is most convenient for you.
+`, "\xF0\x9F\x9A\x80")
 
 	return message
 }

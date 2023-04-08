@@ -21,7 +21,7 @@ func AnswerGPT(message *tgbotapi.Message) (string, error) {
 	}
 
 	req.Header.Add("content-type", "application/json")
-	req.Header.Add("X-RapidAPI-Key", "-")
+	req.Header.Add("X-RapidAPI-Key", "85e69f9465msh9b8963f3d02fc11p1fbbc9jsn64207893b164")
 	req.Header.Add("X-RapidAPI-Host", "chatgpt-ai-chat-bot.p.rapidapi.com")
 
 	res, err := http.DefaultClient.Do(req)
