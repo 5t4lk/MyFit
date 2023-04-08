@@ -13,3 +13,5 @@
 - Git
 - ChatGPT
 - Makefile
+- DigitalOcean
+- Configs
