@@ -14,6 +14,4 @@ COPY --from=0 /MyFit/bin/bot .
 COPY --from=0 /MyFit/configs configs/
 COPY --from=0 /MyFit/pics pics/
 
-EXPOSE 80
-
 CMD ["./bot"]
