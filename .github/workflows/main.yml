@@ -6,7 +6,7 @@ on:
       - master
 
 env:
-  REGISTRY: "registry.digitalocean.com/myfit-bot"
+  REGISTRY: "registry.digitalocean.com/myfit-registry"
   IMAGE_NAME: "myfit-bot"
   CONTAINER_NAME: "myfit"
 
