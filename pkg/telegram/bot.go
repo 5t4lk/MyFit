@@ -41,7 +41,7 @@ func (b *Bot) handleUpdates(updates tgbotapi.UpdatesChannel) {
 				log.Printf("error: %s", err)
 			}
 		}
-	}
+	} // c
 }
 
 func (b *Bot) initUpdatesChannel() (tgbotapi.UpdatesChannel, error) {
