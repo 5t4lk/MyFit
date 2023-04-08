@@ -47,7 +47,7 @@ jobs:
           script: |
             # Login into Digital Ocean Registry
             docker login -u ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} -p ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} $(echo $REGISTRY)
-
+            
             # Stop running container
             docker stop $(echo $CONTAINER_NAME)
 
