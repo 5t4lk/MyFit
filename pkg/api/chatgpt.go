@@ -56,6 +56,7 @@ func unmarshalGPT(data []byte) (ChatGPT, error) {
 	return c, nil
 }
 
+// c
 type ChatGPT struct {
 	ConversationID string `json:"conversationId"`
 	Response       string `json:"response"`
