@@ -15,3 +15,4 @@
 - Makefile
 - DigitalOcean
 - Configs
+- CI/CD
