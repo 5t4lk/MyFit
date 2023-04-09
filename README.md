@@ -16,3 +16,4 @@
 - DigitalOcean
 - Configs
 - CI/CD
+- Docker
