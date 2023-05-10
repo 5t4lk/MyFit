@@ -128,6 +128,8 @@ func displayStart(message *tgbotapi.Message) string {
 	/trainings - see training plans and prices
 	/consult - talk with consultant
 	/q - finish chat with consultant
+
+	Can you rate my work, please?
 `, message.Chat.FirstName, "\xE2\x9C\x8B", "\xE2\x84\xB9")
 
 	return msg
