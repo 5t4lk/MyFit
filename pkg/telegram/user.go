@@ -190,7 +190,7 @@ To receive your gift, please just answer to some questions. We appreciate your t
 func surveyQuestionOne() string {
 	msg := fmt.Sprintf(`
 	%s1/3: What is your overall assessment of the application on a scale of 1 to 10? 
-            Please give a number where 1 is very bad, 10 is excellent.
+             Please give a number where 1 is very bad, 10 is excellent.
 `, "\xE2\x9D\x94")
 
 	commandSwitcher = 7
@@ -201,7 +201,7 @@ func surveyQuestionOne() string {
 func surveyQuestionTwo() string {
 	msg := fmt.Sprintf(`
 	%s2/3: What features or functionality of the app did you like best? 
-	           Please describe exactly what you liked and why.
+	            Please describe exactly what you liked and why.
 `, "\xE2\x9D\x94")
 
 	commandSwitcher = 8
@@ -212,7 +212,7 @@ func surveyQuestionTwo() string {
 func surveyQuestionThree() string {
 	msg := fmt.Sprintf(`
 	%s3/3: Do you have any suggestions or suggestions for improving the app? 
-	           We value your opinion and are open to any suggestions to make our app even better.
+	            We value your opinion and are open to any suggestions to make our app even better.
 `, "\xE2\x9D\x94")
 
 	commandSwitcher = 9
@@ -227,7 +227,7 @@ func endSurvey(message *tgbotapi.Message) string {
 	}
 
 	msg := fmt.Sprintf(`
-	%sThank you for taking the survey! 
+	%s Thank you for taking the survey! 
 	You have earned your 20 percents discount on all MyFit products!
 
 	%s Coupon: %s %s
