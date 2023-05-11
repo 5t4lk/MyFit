@@ -19,6 +19,7 @@ const (
 	commandAge        = "age"
 	commandWeight     = "weight"
 	commandHeight     = "height"
+	commandDiscount   = "discount"
 )
 
 func (b *Bot) handleCommand(message *tgbotapi.Message) error {
@@ -43,6 +44,8 @@ func (b *Bot) handleCommand(message *tgbotapi.Message) error {
 		return b.handleCommandWeight(message)
 	case commandHeight:
 		return b.handleCommandHeight(message)
+	case commandDiscount:
+		return b.handleCommandDiscount(message)
 	default:
 		return b.handleUnknownCommand(message)
 	}
@@ -117,6 +120,30 @@ func (b *Bot) handleMessage(message *tgbotapi.Message) error {
 		msg := tgbotapi.NewMessage(message.Chat.ID, displayHeightUserTwo())
 
 		_, err = b.bot.Send(msg)
+		if err != nil {
+			return err
+		}
+	case 6:
+		msg := tgbotapi.NewMessage(message.Chat.ID, surveyQuestionOne())
+		_, err := b.bot.Send(msg)
+		if err != nil {
+			return err
+		}
+	case 7:
+		msg := tgbotapi.NewMessage(message.Chat.ID, surveyQuestionTwo())
+		_, err := b.bot.Send(msg)
+		if err != nil {
+			return err
+		}
+	case 8:
+		msg := tgbotapi.NewMessage(message.Chat.ID, surveyQuestionThree())
+		_, err := b.bot.Send(msg)
+		if err != nil {
+			return err
+		}
+	case 9:
+		msg := tgbotapi.NewMessage(message.Chat.ID, endSurvey(message))
+		_, err := b.bot.Send(msg)
 		if err != nil {
 			return err
 		}
@@ -270,6 +297,19 @@ func (b *Bot) handleCommandProfile(message *tgbotapi.Message) error {
 	msg := tgbotapi.NewMessage(message.Chat.ID, res)
 
 	_, err = b.bot.Send(msg)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (b *Bot) handleCommandDiscount(message *tgbotapi.Message) error {
+	commandSwitcher = 6
+
+	msg := tgbotapi.NewMessage(message.Chat.ID, printDiscountInfo())
+
+	_, err := b.bot.Send(msg)
 	if err != nil {
 		return err
 	}

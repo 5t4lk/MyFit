@@ -27,8 +27,7 @@ func InitDatabase(message *tgbotapi.Message) error {
 	}
 	defer database.Close(client, ctx, cancel)
 
-	err = database.Ping(client, ctx)
-	if err != nil {
+	if err := database.Ping(client, ctx); err != nil {
 		return err
 	}
 
@@ -45,8 +44,7 @@ func InitDatabase(message *tgbotapi.Message) error {
 
 	var results []bson.D
 
-	err = cursor.All(ctx, &results)
-	if err != nil {
+	if err = cursor.All(ctx, &results); err != nil {
 		return err
 	}
 
@@ -116,6 +114,10 @@ func RequestUserInfo(message *tgbotapi.Message) (string, error) {
 	return msgF, err
 }
 
+func messageWithEmoji(message string, emoji string) string {
+	return fmt.Sprintf("%s %s", message, emoji)
+}
+
 func displayStart(message *tgbotapi.Message) string {
 	msg := fmt.Sprintf(`
 	Hello, %s! %s
@@ -128,6 +130,7 @@ func displayStart(message *tgbotapi.Message) string {
 	/trainings - see training plans and prices
 	/consult - talk with consultant
 	/q - finish chat with consultant
+	/discount - take a survey and receive discount
 
 `, message.Chat.FirstName, "\xE2\x9C\x8B", "\xE2\x84\xB9")
 
@@ -149,11 +152,9 @@ func displayMembershipPic() tgbotapi.FileBytes {
 }
 
 func displayMembershipText() string {
-	message := fmt.Sprintf(`
-	%s To buy a membership in our club, you need to contact a manager at one of the clubs that is most convenient for you.
-`, "\xF0\x9F\x9A\x80")
-
-	return message
+	return messageWithEmoji(`
+	To buy a membership in our club, you need to contact a manager at one of the clubs that is most convenient for you.
+	`, "\xF0\x9F\x9A\x80")
 }
 
 func displayTrainingsPic() tgbotapi.FileBytes {
@@ -171,19 +172,74 @@ func displayTrainingsPic() tgbotapi.FileBytes {
 }
 
 func displayTrainingsText() string {
-	message := fmt.Sprintf(`
-	%s To buy a training plan in our club, you need to contact a manager at one of the clubs that is most convenient for you.
-`, "\xF0\x9F\x9A\x80")
+	return messageWithEmoji(`
+	To buy a training plan in our club, you need to contact a manager at one of the clubs that is most convenient for you.
+	`, "\xF0\x9F\x9A\x80")
+}
 
-	return message
+func printDiscountInfo() string {
+	msg := fmt.Sprintf(`
+	For us it's such a big pleasure that you use our application! %s
+	To receive your gift%s, please just answer to some questions. We appreciate your time!
+`, "\xF0\x9F\x8E\x81", "\xF0\x9F\x98\x8C")
+
+	return msg
+}
+
+func surveyQuestionOne() string {
+	msg := fmt.Sprintf(`
+	%s1/3: What is your overall assessment of the application on a scale of 1 to 10? 
+	Please give a number where 1 is very bad, 10 is excellent.
+`, "\xE2\x9D\x94")
+
+	commandSwitcher = 7
+
+	return msg
+}
+
+func surveyQuestionTwo() string {
+	msg := fmt.Sprintf(`
+	%s2/3: What features or functionality of the app did you like best? 
+	Please describe exactly what you liked and why.
+`, "\xE2\x9D\x94")
+
+	commandSwitcher = 8
+
+	return msg
+}
+
+func surveyQuestionThree() string {
+	msg := fmt.Sprintf(`
+	%s3/3: Do you have any suggestions or suggestions for improving the app? 
+	We value your opinion and are open to any suggestions to make our app even better.
+`, "\xE2\x9D\x94")
+
+	commandSwitcher = 9
+
+	return msg
+}
+
+func endSurvey(message *tgbotapi.Message) string {
+	couponCode, err := GenerateCoupon(message.Chat.ID, 20)
+	if err != nil {
+		log.Printf("error while generating coupone: %s", err)
+	}
+
+	msg := fmt.Sprintf(`
+	%sThank you for taking the survey! 
+	You have earned your 20 percents discount on all MyFit products!
+	%sCoupon: %s
+`, "\xE2\x9D\x95", "\xF0\x9F\x8E\x81", couponCode)
+
+	commandSwitcher = 0
+
+	return msg
 }
 
 func displayNameUser() string {
-	msg := fmt.Sprintf(`
-	Write your new name %s
-`, "\xE2\x9C\x92")
-
-	return msg
+	return messageWithEmoji(`
+	Write your new name.
+	`, "\xE2\x9C\x92")
 }
 
 func displayNameUserTwo() string {
@@ -195,11 +251,9 @@ func displayNameUserTwo() string {
 }
 
 func displayAgeUser() string {
-	msg := fmt.Sprintf(`
-	Write your new age %s
-`, "\xE2\x9C\x92")
-
-	return msg
+	return messageWithEmoji(`
+	Write your new age.
+	`, "\xE2\x9C\x92")
 }
 
 func displayAgeUserTwo() string {
@@ -211,11 +265,9 @@ func displayAgeUserTwo() string {
 }
 
 func displayWeightUser() string {
-	msg := fmt.Sprintf(`
-	Write your new weight %s
-`, "\xE2\x9C\x92")
-
-	return msg
+	return messageWithEmoji(`
+	Write your new weight.
+	`, "\xE2\x9C\x92")
 }
 
 func displayWeightUserTwo() string {
@@ -227,11 +279,9 @@ func displayWeightUserTwo() string {
 }
 
 func displayHeightUser() string {
-	msg := fmt.Sprintf(`
-	Write your new height %s
-`, "\xE2\x9C\x92")
-
-	return msg
+	return messageWithEmoji(`
+	Write your new height.
+	`, "\xE2\x9C\x92")
 }
 
 func displayHeightUserTwo() string {
