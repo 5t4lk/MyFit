@@ -9,6 +9,7 @@ import (
 type Bot struct {
 	bot      *tgbotapi.BotAPI
 	messages config.Messages
+	users    []User
 }
 
 func NewBot(bot *tgbotapi.BotAPI, messages config.Messages) *Bot {
