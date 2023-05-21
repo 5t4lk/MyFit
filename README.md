@@ -11,9 +11,5 @@
 - API
 - MongoDB
 - Git
-- ChatGPT
-- Makefile
-- DigitalOcean
-- Configs
 - CI/CD
 - Docker
