@@ -8,8 +8,9 @@
 > Telegram application (bot) to support personal fitness training.
 # Stack
 - Golang
-- API
+- Telegram API
 - MongoDB
 - Git
 - CI/CD
 - Docker
+- Rapid API
